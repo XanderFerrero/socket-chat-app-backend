@@ -6,10 +6,10 @@ const path = require("path")
 
 app.use(cors())
 
-// app.use(express.static(path.join(__dirname,"/dist")))
-// app.get("*",(req,res) => {
-//     res.sendFile(path.resolve(__dirname,"dist","index.html"))
-// })
+app.use(express.static(path.join(__dirname,"/dist")))
+app.get("*",(req,res) => {
+    res.sendFile(path.resolve(__dirname,"dist","index.html"))
+})
 
 const server = http.createServer(app)
 
