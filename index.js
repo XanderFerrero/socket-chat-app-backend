@@ -2,8 +2,14 @@ const express = require('express')
 const http = require("http")
 const app = express();
 const cors = require("cors")
+const path = require("path")
 
 app.use(cors())
+
+app.use(express.static(path.join(__dirname,"/dist")))
+app.get("*",(req,res) => {
+    res.sendFile(path.resolve(__dirname,"dist","index.html"))
+})
 
 const server = http.createServer(app)
 
@@ -14,26 +20,17 @@ const io = require("socket.io")(server, {
     }
 })
 
-const texts = []
-
+ 
 io.on("connection", socket => {
-    texts.push({username:"Bot",text:"user has entered the chat"})
-    socket.emit("login")
-    
-    socket.emit("get-texts",texts)
+   socket.broadcast.emit("post-text",{username:"BOT",text:"USER HAS ENTERED CHAT"})
+   
+   socket.on("post-text", data => {
+    io.emit("post-text", data)
+   })
 
-    socket.on("post-text", data => {
-        texts.push(data);
-        texts.filter(text => text)
-        console.log(texts)
-        io.emit("get-texts",texts)
-    })
-
-    socket.on("disconnect", () => {
-        console.log("BUY THE MILK")
-        texts.push({username:"Bot",text:"user has left chat"})
-        socket.emit("get-texts",texts)
-    })
+   socket.on("disconnect", data => {
+    socket.broadcast.emit("post-text",{username:"BOT",text:`USER HAS LEFT CHAT`})
+   })
 })
 
 
